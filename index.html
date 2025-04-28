@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Function PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tab.active {
+            background-color: #e0e0ff;
+            border-bottom: 2px solid #5050ff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Tic-Tac-Toe Styles */
+        .tic-tac-toe {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+            width: 310px;
+        }
+        
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+        
+        .status {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+        
+        .restart {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #5050ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* Notes Styles */
+        .notes-container {
+            margin: 20px 0;
+        }
+        
+        .note-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .note-item {
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+        }
+        
+        .note-item:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .note-editor {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .note-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background-color: #5050ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background-color: #ccc;
+        }
+        
+        /* Calculator Styles */
+        .calculator {
+            width: 280px;
+            margin: 20px auto;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .calculator-display {
+            width: 100%;
+            height: 60px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+            box-sizing: border-box;
+            font-size: 24px;
+            overflow: hidden;
+        }
+        
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        
+        .calculator-button {
+            height: 50px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .calculator-button:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .calculator-button.operator {
+            background-color: #f0f0f0;
+        }
+        
+        .calculator-button.equals {
+            background-color: #5050ff;
+            color: white;
+        }
+        
+        .calculator-button.clear {
+            background-color: #ff5050;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="tic-tac-toe">Tic-Tac-Toe</div>
+            <div class="tab" data-tab="notes">Notes</div>
+            <div class="tab" data-tab="calculator">Calculator</div>
+        </div>
+        
+        <!-- Tic-Tac-Toe Tab -->
+        <div class="tab-content active" id="tic-tac-toe">
+            <div class="status">Player X's turn</div>
+            <div class="tic-tac-toe">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+            <button class="restart">Restart Game</button>
+        </div>
+        
+        <!-- Notes Tab -->
+        <div class="tab-content" id="notes">
+            <div class="notes-container">
+                <div class="note-actions">
+                    <button class="btn" id="new-note">New Note</button>
+                </div>
+                <div id="editor-container" style="display: none;">
+                    <textarea class="note-editor" id="note-editor"></textarea>
+                    <div class="note-actions">
+                        <button class="btn" id="save-note">Save Note</button>
+                        <button class="btn btn-cancel" id="cancel-note">Cancel</button>
+                    </div>
+                </div>
+                <ul class="note-list" id="note-list">
+                    <!-- Notes will be populated here -->
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Calculator Tab -->
+        <div class="tab-content" id="calculator">
+            <div class="calculator">
+                <div class="calculator-display" id="calculator-display">0</div>
+                <div class="calculator-buttons">
+                    <div class="calculator-button clear" data-action="clear">C</div>
+                    <div class="calculator-button operator" data-action="sqrt">√</div>
+                    <div class="calculator-button operator" data-action="power">^</div>
+                    <div class="calculator-button operator" data-action="divide">÷</div>
+                    <div class="calculator-button" data-value="7">7</div>
+                    <div class="calculator-button" data-value="8">8</div>
+                    <div class="calculator-button" data-value="9">9</div>
+                    <div class="calculator-button operator" data-action="multiply">×</div>
+                    <div class="calculator-button" data-value="4">4</div>
+                    <div class="calculator-button" data-value="5">5</div>
+                    <div class="calculator-button" data-value="6">6</div>
+                    <div class="calculator-button operator" data-action="subtract">-</div>
+                    <div class="calculator-button" data-value="1">1</div>
+                    <div class="calculator-button" data-value="2">2</div>
+                    <div class="calculator-button" data-value="3">3</div>
+                    <div class="calculator-button operator" data-action="add">+</div>
+                    <div class="calculator-button" data-value="0">0</div>
+                    <div class="calculator-button" data-value=".">.</div>
+                    <div class="calculator-button equals" data-action="calculate">=</div>
+                    <div class="calculator-button operator" data-action="delete">⌫</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // App state
+            const state = {
+                ticTacToe: {
+                    board: Array(9).fill(''),
+                    currentPlayer: 'X',
+                    gameActive: true
+                },
+                notes: {
+                    list: [],
+                    currentNote: null,
+                    editMode: false
+                },
+                calculator: {
+                    displayValue: '0',
+                    firstOperand: null,
+                    waitingForSecondOperand: false,
+                    operator: null
+                }
+            };
+
+            // Load saved state from localStorage if available
+            loadState();
+
+            // Tab switching
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update active content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === tabId) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Tic-Tac-Toe Logic
+            const cells = document.querySelectorAll('.cell');
+            const status = document.querySelector('.status');
+            const restartBtn = document.querySelector('.restart');
+            
+            function updateTicTacToeUI() {
+                cells.forEach((cell, index) => {
+                    cell.textContent = state.ticTacToe.board[index];
+                });
+                
+                status.textContent = state.ticTacToe.gameActive ? 
+                    `Player ${state.ticTacToe.currentPlayer}'s turn` : 
+                    'Game over';
+            }
+            
+            function checkWinner() {
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6]             // diagonals
+                ];
+                
+                for (const pattern of winPatterns) {
+                    const [a, b, c] = pattern;
+                    if (state.ticTacToe.board[a] && 
+                        state.ticTacToe.board[a] === state.ticTacToe.board[b] && 
+                        state.ticTacToe.board[a] === state.ticTacToe.board[c]) {
+                        state.ticTacToe.gameActive = false;
+                        status.textContent = `Player ${state.ticTacToe.board[a]} wins!`;
+                        return true;
+                    }
+                }
+                
+                // Check for draw
+                if (!state.ticTacToe.board.includes('')) {
+                    state.ticTacToe.gameActive = false;
+                    status.textContent = "Game ended in a draw!";
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            cells.forEach(cell => {
+                cell.addEventListener('click', () => {
+                    const index = cell.getAttribute('data-index');
+                    
+                    if (state.ticTacToe.board[index] !== '' || !state.ticTacToe.gameActive) {
+                        return;
+                    }
+                    
+                    state.ticTacToe.board[index] = state.ticTacToe.currentPlayer;
+                    cell.textContent = state.ticTacToe.currentPlayer;
+                    
+                    if (!checkWinner()) {
+                        state.ticTacToe.currentPlayer = state.ticTacToe.currentPlayer === 'X' ? 'O' : 'X';
+                        status.textContent = `Player ${state.ticTacToe.currentPlayer}'s turn`;
+                    }
+                    
+                    saveState();
+                });
+            });
+            
+            restartBtn.addEventListener('click', () => {
+                state.ticTacToe.board = Array(9).fill('');
+                state.ticTacToe.currentPlayer = 'X';
+                state.ticTacToe.gameActive = true;
+                updateTicTacToeUI();
+                status.textContent = "Player X's turn";
+                saveState();
+            });
+            
+            // Notes Logic
+            const noteList = document.getElementById('note-list');
+            const newNoteBtn = document.getElementById('new-note');
+            const saveNoteBtn = document.getElementById('save-note');
+            const cancelNoteBtn = document.getElementById('cancel-note');
+            const editorContainer = document.getElementById('editor-container');
+            const noteEditor = document.getElementById('note-editor');
+            
+            function updateNotesUI() {
+                noteList.innerHTML = '';
+                
+                state.notes.list.forEach((note, index) => {
+                    const preview = note.substring(0, 10) + (note.length > 10 ? '...' : '');
+                    const li = document.createElement('li');
+                    li.className = 'note-item';
+                    li.textContent = preview;
+                    li.setAttribute('data-index', index);
+                    
+                    // Double click to edit
+                    li.addEventListener('dblclick', () => {
+                        state.notes.currentNote = index;
+                        state.notes.editMode = true;
+                        noteEditor.value = note;
+                        editorContainer.style.display = 'block';
+                    });
+                    
+                    noteList.appendChild(li);
+                });
+            }
+            
+            newNoteBtn.addEventListener('click', () => {
+                state.notes.currentNote = null;
+                state.notes.editMode = false;
+                noteEditor.value = '';
+                editorContainer.style.display = 'block';
+            });
+            
+            saveNoteBtn.addEventListener('click', () => {
+                const noteText = noteEditor.value.trim();
+                
+                if (noteText) {
+                    if (state.notes.editMode && state.notes.currentNote !== null) {
+                        state.notes.list[state.notes.currentNote] = noteText;
+                    } else {
+                        state.notes.list.push(noteText);
+                    }
+                    
+                    updateNotesUI();
+                    editorContainer.style.display = 'none';
+                    saveState();
+                }
+            });
+            
+            cancelNoteBtn.addEventListener('click', () => {
+                editorContainer.style.display = 'none';
+            });
+            
+            // Calculator Logic
+            const calculatorDisplay = document.getElementById('calculator-display');
+            const calculatorButtons = document.querySelectorAll('.calculator-button');
+            
+            function updateCalculatorUI() {
+                calculatorDisplay.textContent = state.calculator.displayValue;
+            }
+            
+            function resetCalculator() {
+                state.calculator.displayValue = '0';
+                state.calculator.firstOperand = null;
+                state.calculator.waitingForSecondOperand = false;
+                state.calculator.operator = null;
+                saveState();
+            }
+            
+            function inputDigit(digit) {
+                const { displayValue, waitingForSecondOperand } = state.calculator;
+                
+                if (waitingForSecondOperand) {
+                    state.calculator.displayValue = digit;
+                    state.calculator.waitingForSecondOperand = false;
+                } else {
+                    state.calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
+                }
+                
+                saveState();
+            }
+            
+            function inputDecimal() {
+                if (state.calculator.waitingForSecondOperand) {
+                    state.calculator.displayValue = '0.';
+                    state.calculator.waitingForSecondOperand = false;
+                    return;
+                }
+                
+                if (!state.calculator.displayValue.includes('.')) {
+                    state.calculator.displayValue += '.';
+                }
+                
+                saveState();
+            }
+            
+            function handleOperator(nextOperator) {
+                const { firstOperand, displayValue, operator } = state.calculator;
+                const inputValue = parseFloat(displayValue);
+                
+                if (firstOperand === null && !isNaN(inputValue)) {
+                    state.calculator.firstOperand = inputValue;
+                } else if (operator) {
+                    const result = performCalculation(operator, firstOperand, inputValue);
+                    state.calculator.displayValue = `${result}`;
+                    state.calculator.firstOperand = result;
+                }
+                
+                state.calculator.waitingForSecondOperand = true;
+                state.calculator.operator = nextOperator;
+                saveState();
+            }
+            
+            function performCalculation(operator, firstOperand, secondOperand) {
+                switch (operator) {
+                    case 'add':
+                        return firstOperand + secondOperand;
+                    case 'subtract':
+                        return firstOperand - secondOperand;
+                    case 'multiply':
+                        return firstOperand * secondOperand;
+                    case 'divide':
+                        return firstOperand / secondOperand;
+                    case 'power':
+                        return Math.pow(firstOperand, secondOperand);
+                    default:
+                        return secondOperand;
+                }
+            }
+            
+            function handleSpecialOperator(action) {
+                const { displayValue } = state.calculator;
+                const inputValue = parseFloat(displayValue);
+                
+                switch (action) {
+                    case 'sqrt':
+                        if (inputValue >= 0) {
+                            const result = Math.sqrt(inputValue);
+                            state.calculator.displayValue = `${result}`;
+                            state.calculator.firstOperand = result;
+                            state.calculator.waitingForSecondOperand = true;
+                        }
+                        break;
+                    case 'clear':
+                        resetCalculator();
+                        break;
+                    case 'delete':
+                        if (state.calculator.displayValue.length > 1) {
+                            state.calculator.displayValue = state.calculator.displayValue.slice(0, -1);
+                        } else {
+                            state.calculator.displayValue = '0';
+                        }
+                        break;
+                }
+                
+                saveState();
+            }
+            
+            calculatorButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const action = button.getAttribute('data-action');
+                    const value = button.getAttribute('data-value');
+                    
+                    if (value) {
+                        if (value === '.') {
+                            inputDecimal();
+                        } else {
+                            inputDigit(value);
+                        }
+                    } else if (action) {
+                        if (['add', 'subtract', 'multiply', 'divide', 'power'].includes(action)) {
+                            handleOperator(action);
+                        } else if (action === 'calculate') {
+                            if (state.calculator.firstOperand !== null && state.calculator.operator) {
+                                const secondOperand = parseFloat(state.calculator.displayValue);
+                                const result = performCalculation(state.calculator.operator, state.calculator.firstOperand, secondOperand);
+                                state.calculator.displayValue = `${result}`;
+                                state.calculator.firstOperand = result;
+                                state.calculator.waitingForSecondOperand = true;
+                                state.calculator.operator = null;
+                                saveState();
+                            }
+                        } else {
+                            handleSpecialOperator(action);
+                        }
+                    }
+                    
+                    updateCalculatorUI();
+                });
+            });
+            
+            // Save and load state functions
+            function saveState() {
+                localStorage.setItem('pwaAppState', JSON.stringify(state));
+            }
+            
+            function loadState() {
+                const savedState = localStorage.getItem('pwaAppState');
+                
+                if (savedState) {
+                    const parsedState = JSON.parse(savedState);
+                    Object.assign(state, parsedState);
+                    
+                    // Update UI with loaded state
+                    updateTicTacToeUI();
+                    updateNotesUI();
+                    updateCalculatorUI();
+                }
+            }
+            
+            // Initialize UI
+            updateTicTacToeUI();
+            updateNotesUI();
+            updateCalculatorUI();
+        });
+    </script>
+</body>
+</html>
